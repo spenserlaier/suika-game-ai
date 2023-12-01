@@ -10,6 +10,9 @@ pygame.init()
 # Set up Pygame display
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 FLOOR_HEIGHT = 200
+WALL_X_OFFSET = 100
+WALL_LENGTH = SCREEN_HEIGHT - 300
+WALL_Y_OFFSET = 100
 # it seems like floor height is computed by counting pixels from bottom up for pymunk,
 # and pixels from the top down for pygame. a conversion is needed
 FLOOR_WIDTH = 5
@@ -24,6 +27,22 @@ space.gravity = 0, -1000  # Set gravity in the y-direction
 ground = pymunk.Segment(space.static_body, (0, FLOOR_HEIGHT), (SCREEN_WIDTH, FLOOR_HEIGHT), 1)
 ground.friction = 1.0
 space.add(ground)
+
+# Create the left wall
+left_wall = pymunk.Segment(space.static_body, (WALL_X_OFFSET, FLOOR_HEIGHT), 
+                                              (WALL_X_OFFSET, FLOOR_HEIGHT + WALL_LENGTH),
+                                               1)
+left_wall.friction = 1.0
+space.add(left_wall)
+
+
+# Create the right wall
+right_wall = pymunk.Segment(space.static_body, (SCREEN_WIDTH - WALL_X_OFFSET, FLOOR_HEIGHT), 
+                                               (SCREEN_WIDTH - WALL_X_OFFSET, FLOOR_HEIGHT + WALL_LENGTH),
+                                                1)
+right_wall.friction = 1.0
+space.add(right_wall)
+
 
 # Create a dynamic box
 mass = 1
@@ -55,8 +74,6 @@ while True:
             circle_body.position = mouse_x, SCREEN_HEIGHT - mouse_y
             space.add(circle_body, circle_shape)
             all_circles.append(circle_body)
-
-
     # Step the Pymunk space
     space.step(1 / 60.0)
 
@@ -68,6 +85,18 @@ while True:
     y1 = SCREEN_HEIGHT - FLOOR_HEIGHT 
     x2, y2 = ground.b
     y2 = SCREEN_HEIGHT - FLOOR_HEIGHT 
+    pygame.draw.line(screen, colors.green, (x1, y1), (x2, y2), FLOOR_WIDTH)
+    # Draw left wall
+    x1, y1 = left_wall.a
+    x2, y2 = left_wall.b
+    y1 = SCREEN_HEIGHT - y1
+    y2 = SCREEN_HEIGHT - y2
+    pygame.draw.line(screen, colors.green, (x1, y1), (x2, y2), FLOOR_WIDTH)
+    # Draw right wall
+    x1, y1 = right_wall.a
+    x2, y2 = right_wall.b
+    y1 = SCREEN_HEIGHT - y1
+    y2 = SCREEN_HEIGHT - y2
     pygame.draw.line(screen, colors.green, (x1, y1), (x2, y2), FLOOR_WIDTH)
 
     # Draw circle
