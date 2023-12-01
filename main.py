@@ -13,6 +13,7 @@ FLOOR_HEIGHT = 200
 WALL_X_OFFSET = 100
 WALL_LENGTH = SCREEN_HEIGHT - 300
 WALL_Y_OFFSET = 100
+BORDER_COLLISION_TYPE = 5
 # it seems like floor height is computed by counting pixels from bottom up for pymunk,
 # and pixels from the top down for pygame. a conversion is needed
 FLOOR_WIDTH = 5
@@ -26,6 +27,7 @@ space.gravity = 0, -1000  # Set gravity in the y-direction
 # Create a ground segment
 ground = pymunk.Segment(space.static_body, (0, FLOOR_HEIGHT), (SCREEN_WIDTH, FLOOR_HEIGHT), 1)
 ground.friction = 1.0
+ground.collision_type = BORDER_COLLISION_TYPE
 space.add(ground)
 
 # Create the left wall
@@ -33,6 +35,7 @@ left_wall = pymunk.Segment(space.static_body, (WALL_X_OFFSET, FLOOR_HEIGHT),
                                               (WALL_X_OFFSET, FLOOR_HEIGHT + WALL_LENGTH),
                                                1)
 left_wall.friction = 1.0
+left_wall.collision_type = BORDER_COLLISION_TYPE
 space.add(left_wall)
 
 
@@ -41,10 +44,11 @@ right_wall = pymunk.Segment(space.static_body, (SCREEN_WIDTH - WALL_X_OFFSET, FL
                                                (SCREEN_WIDTH - WALL_X_OFFSET, FLOOR_HEIGHT + WALL_LENGTH),
                                                 1)
 right_wall.friction = 1.0
+right_wall.collision_type = BORDER_COLLISION_TYPE
 space.add(right_wall)
 
 
-# Create a dynamic box
+# Create a dynamic circle
 mass = 1
 radius = 25  # Specify the radius of the circle
 moment = pymunk.moment_for_circle(mass, 0, radius)
@@ -52,6 +56,23 @@ circle_body = pymunk.Body(mass, moment)
 circle_shape = pymunk.Circle(circle_body, radius)
 circle_body.position = 200, 400
 space.add(circle_body, circle_shape)
+
+
+
+collision_handler = space.add_collision_handler(0, 0)  # 0 is the collision type for circles
+
+# Define a collision callback function
+def handle_collision(arbiter, space, data):
+    # Get information about the colliding shapes
+    shape_a, shape_b = arbiter.shapes
+    radius_a = shape_a.radius
+    radius_b = shape_b.radius
+
+    print(f"Collision detected! Radius of Circle 1: {radius_a}, Radius of Circle 2: {radius_b}")
+    return True
+
+# Set the collision callback function
+collision_handler.begin = handle_collision
 
 # Set up Pygame clock
 clock = pygame.time.Clock()
