@@ -8,12 +8,19 @@ import colors
 pygame.init()
 
 # Set up Pygame display
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-FLOOR_HEIGHT = 200
-WALL_X_OFFSET = 100
-WALL_LENGTH = SCREEN_HEIGHT - 300
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
+FLOOR_HEIGHT = 100
+WALL_X_OFFSET = 150
+#WALL_LENGTH = SCREEN_HEIGHT - 200
+WALL_LENGTH = 600
 WALL_Y_OFFSET = 100
 BORDER_COLLISION_TYPE = 5
+CLOUD_RADIUS = 30
+CLOUD_LEFT_X_BOUNDARY = WALL_X_OFFSET + CLOUD_RADIUS//4
+CLOUD_RIGHT_X_BOUNDARY = SCREEN_WIDTH - WALL_X_OFFSET - CLOUD_RADIUS//4
+#CLOUD_Y_VALUE = SCREEN_HEIGHT//2
+CLOUD_Y_VALUE = WALL_Y_OFFSET // 3
+# TODO: take into account cloud radius when establishing x position boundaries
 # it seems like floor height is computed by counting pixels from bottom up for pymunk,
 # and pixels from the top down for pygame. a conversion is needed
 FLOOR_WIDTH = 5
@@ -68,7 +75,7 @@ def handle_collision(arbiter, space, data):
     radius_a = shape_a.radius
     radius_b = shape_b.radius
 
-    print(f"Collision detected! Radius of Circle 1: {radius_a}, Radius of Circle 2: {radius_b}")
+    #print(f"Collision detected! Radius of Circle 1: {radius_a}, Radius of Circle 2: {radius_b}")
     return True
 
 # Set the collision callback function
@@ -78,6 +85,14 @@ collision_handler.begin = handle_collision
 clock = pygame.time.Clock()
 all_circles = [circle_body]
 
+
+mouse_x, mouse_y = pygame.mouse.get_pos()
+cloud_x, cloud_y = mouse_x, CLOUD_Y_VALUE
+if mouse_x < CLOUD_LEFT_X_BOUNDARY:
+    cloud_x = CLOUD_LEFT_X_BOUNDARY
+elif mouse_x > CLOUD_RIGHT_X_BOUNDARY:
+    cloud_x = CLOUD_RIGHT_X_BOUNDARY
+
 # Run the simulation loop
 while True:
     for event in pygame.event.get():
@@ -85,21 +100,32 @@ while True:
             pygame.quit()
             exit()
         if event.type == MOUSEBUTTONDOWN:
-            mouse_x, mouse_y = event.pos
+            #mouse_x, mouse_y = event.pos
             print(event.pos)
             mass = 1
             radius = 25  # Specify the radius of the circle
             moment = pymunk.moment_for_circle(mass, 0, radius)
             circle_body = pymunk.Body(mass, moment)
             circle_shape = pymunk.Circle(circle_body, radius)
-            circle_body.position = mouse_x, SCREEN_HEIGHT - mouse_y
+            #circle_body.position = mouse_x, SCREEN_HEIGHT - mouse_y
+            circle_body.position = cloud_x, SCREEN_HEIGHT- cloud_y
             space.add(circle_body, circle_shape)
             all_circles.append(circle_body)
+
     # Step the Pymunk space
     space.step(1 / 60.0)
 
     # Update Pygame display
     screen.fill(colors.black)
+
+    # draw the cloud
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    cloud_x, cloud_y = mouse_x, CLOUD_Y_VALUE
+    if mouse_x < CLOUD_LEFT_X_BOUNDARY:
+        cloud_x = CLOUD_LEFT_X_BOUNDARY
+    elif mouse_x > CLOUD_RIGHT_X_BOUNDARY:
+        cloud_x = CLOUD_RIGHT_X_BOUNDARY
+    pygame.draw.circle(screen, colors.purple, (cloud_x, cloud_y), 30)
 
     # Draw ground
     x1, y1 = ground.a
@@ -126,5 +152,6 @@ while True:
         pygame.draw.circle(screen, colors.blue, circle_position, radius)
 
     pygame.display.update()
+    # pygame.display.flip()
     clock.tick(60)
 
