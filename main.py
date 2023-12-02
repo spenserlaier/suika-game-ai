@@ -17,6 +17,7 @@ WALL_X_OFFSET = 150
 WALL_LENGTH = 600
 WALL_Y_OFFSET = 100
 BORDER_COLLISION_TYPE = 5
+CIRCLE_COLLISION_TYPE = 2
 CLOUD_RADIUS = 30
 BASE_MASS = 0.5
 CLOUD_LEFT_X_BOUNDARY = WALL_X_OFFSET + CLOUD_RADIUS//4
@@ -88,57 +89,46 @@ space.add(circle_body, circle_shape)
 
 
 
-collision_handler = space.add_collision_handler(0, 0)  # 0 is the collision type for circles
+collision_handler = space.add_collision_handler(CIRCLE_COLLISION_TYPE, CIRCLE_COLLISION_TYPE)  # 0 is the collision type for circles
+
+shapes_to_remove = []
+#recent_collisions = set()
+recent_collisions = set() 
 
 # Define a collision callback function
-def handle_collision(arbiter, space, data):
+def handle_collision(arbiter, space, data, circles):
     # Get information about the colliding shapes
     shape_a, shape_b = arbiter.shapes
     radius_a = shape_a.radius
     radius_b = shape_b.radius
-    print(f"Collision detected! Radius of Circle 1: {radius_a}, Radius of Circle 2: {radius_b}")
+    #print(radius_a, radius_b)
     if int(radius_a) == int(radius_b):
-        nxt_size = fruits.next_sizes[radius_a]
-        #del shape_a.body
-        #del shape_b.body
-        if shape_a in all_circles:
-            all_circles.remove(shape_a)
-        if shape_b in all_circles:
-            all_circles.remove(shape_b)
-        next_pos = shape_a.body.position
-        marked_for_removal = list()
-        shapes_to_remove = list()
-        for shape in space.shapes:
-            print(shape.body)
-            if shape not in all_circles and shape.radius in fruits.next_sizes:
-                #space.remove(shape.body)
-                marked_for_removal.append(shape.body)
-                shapes_to_remove.append(shape)
-        print(all_circles)
-        for idx, body in enumerate(marked_for_removal):
-            if shapes_to_remove[idx] in space.shapes:
-                space.remove(shapes_to_remove[idx], body)
-
-        if nxt_size != None:
-            mass = BASE_MASS*nxt_size/1000
-            radius = nxt_size  # Specify the radius of the circle
-            moment = pymunk.moment_for_circle(mass, 0, radius)
+        nxt_radius = fruits.next_sizes[radius_a]
+        if nxt_radius != None:
+            next_pos = pymunk.Vec2d(shape_a.body.position.x, shape_a.body.position.y)
+            mass = BASE_MASS*nxt_radius
+            moment = pymunk.moment_for_circle(mass, 0, nxt_radius)
             circle_body = pymunk.Body(mass, moment)
-            circle_shape = pymunk.Circle(circle_body, radius)
-            #TODO: experiment with these values to avoid combined fruits being slung
-            #out of bounds
-            circle_body.position = next_pos
+            circle_shape = pymunk.Circle(circle_body, nxt_radius)
+            circle_shape.collision_type = CIRCLE_COLLISION_TYPE
+            circle_body.position = next_pos 
             space.add(circle_body, circle_shape)
-            #all_circles.append(circle_body)
-            all_circles.add(circle_shape)
-            # TODO: there are some problems with chaining fruits together. maybe experiment with returning
-            # false when a new fruit is created?
-            #return False
-            #Update: this didn't fix the issues
+            circles.add(circle_shape)
+        if shape_a in space.shapes:
+            space.remove(shape_a)
+        if shape_a in circles:
+            circles.remove(shape_a)
+        if shape_b in space.shapes:
+            space.remove(shape_b)
+        if shape_b in circles:
+            circles.remove(shape_b)
+
+
     return True
 
 # Set the collision callback function
-collision_handler.begin = handle_collision
+#collision_handler.begin = handle_collision
+collision_handler.begin = lambda arbiter, space, data: handle_collision(arbiter, space, data,  all_circles)
 
 # Set up Pygame clock
 clock = pygame.time.Clock()
@@ -155,7 +145,8 @@ elif mouse_x > CLOUD_RIGHT_X_BOUNDARY:
 sorted_sizes = sorted(fruits.next_sizes.keys())
 
 # Run the simulation loop
-next_radius = random.choice(sorted_sizes[0:3])
+#next_radius = random.choice(sorted_sizes[0:3])
+next_radius = sorted_sizes[0]
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -163,23 +154,25 @@ while True:
             exit()
         if event.type == MOUSEBUTTONDOWN:
             #mouse_x, mouse_y = event.pos
-            print(event.pos)
+            #print(event.pos)
             radius = next_radius
             mass = BASE_MASS*radius
             #radius = 25  # Specify the radius of the circle
             moment = pymunk.moment_for_circle(mass, 0, radius)
             circle_body = pymunk.Body(mass, moment)
             circle_shape = pymunk.Circle(circle_body, radius)
+            circle_shape.collision_type = CIRCLE_COLLISION_TYPE
             #circle_body.position = mouse_x, SCREEN_HEIGHT - mouse_y
             circle_body.position = cloud_x, SCREEN_HEIGHT- cloud_y
             space.add(circle_body, circle_shape)
             #all_circles.append(circle_body)
             all_circles.add(circle_shape)
-            next_radius = random.choice(sorted_sizes[0:3])
+            #next_radius = random.choice(sorted_sizes[0:3])
+            next_radius = sorted_sizes[0]
 
     # Step the Pymunk space
     #space.step(1 / 60.0)
-    space.step(1 / 120.0)
+    space.step(1 / 60.0)
 
     # Update Pygame display
     screen.fill(colors.black)
@@ -220,5 +213,8 @@ while True:
 
     pygame.display.update()
     # pygame.display.flip()
+    for idx, shape in enumerate(shapes_to_remove):
+        if shape in space.shapes:
+            space.remove(shape, shape.body)
     clock.tick(60)
 
