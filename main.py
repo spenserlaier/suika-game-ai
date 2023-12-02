@@ -4,6 +4,7 @@ import pymunk
 from pymunk.vec2d import Vec2d
 import colors
 import fruits
+import random
 
 # Initialize Pygame
 pygame.init()
@@ -90,18 +91,18 @@ def handle_collision(arbiter, space, data):
             circle_body.position = shape_a.body.position
             space.add(circle_body, circle_shape)
             #all_circles.append(circle_body)
-            all_circles.add(circle_body)
+            all_circles.add(circle_shape)
         #del shape_a.body
         #del shape_b.body
-        if shape_a.body in all_circles:
-            all_circles.remove(shape_a.body)
-        if shape_b.body in all_circles:
-            all_circles.remove(shape_b.body)
+        if shape_a in all_circles:
+            all_circles.remove(shape_a)
+        if shape_b in all_circles:
+            all_circles.remove(shape_b)
         marked_for_removal = list()
         shapes_to_remove = list()
         for shape in space.shapes:
             print(shape.body)
-            if shape.body not in all_circles and shape.radius in fruits.next_sizes:
+            if shape not in all_circles and shape.radius in fruits.next_sizes:
                 #space.remove(shape.body)
                 marked_for_removal.append(shape.body)
                 shapes_to_remove.append(shape)
@@ -116,7 +117,7 @@ collision_handler.begin = handle_collision
 
 # Set up Pygame clock
 clock = pygame.time.Clock()
-all_circles = {circle_body}
+all_circles = {circle_shape}
 
 
 mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -125,6 +126,8 @@ if mouse_x < CLOUD_LEFT_X_BOUNDARY:
     cloud_x = CLOUD_LEFT_X_BOUNDARY
 elif mouse_x > CLOUD_RIGHT_X_BOUNDARY:
     cloud_x = CLOUD_RIGHT_X_BOUNDARY
+
+sorted_sizes = sorted(fruits.next_sizes.keys())
 
 # Run the simulation loop
 while True:
@@ -136,7 +139,8 @@ while True:
             #mouse_x, mouse_y = event.pos
             print(event.pos)
             mass = 1
-            radius = 25  # Specify the radius of the circle
+            radius = random.choice(sorted_sizes[0:5])
+            #radius = 25  # Specify the radius of the circle
             moment = pymunk.moment_for_circle(mass, 0, radius)
             circle_body = pymunk.Body(mass, moment)
             circle_shape = pymunk.Circle(circle_body, radius)
@@ -144,7 +148,7 @@ while True:
             circle_body.position = cloud_x, SCREEN_HEIGHT- cloud_y
             space.add(circle_body, circle_shape)
             #all_circles.append(circle_body)
-            all_circles.add(circle_body)
+            all_circles.add(circle_shape)
 
     # Step the Pymunk space
     space.step(1 / 60.0)
@@ -182,8 +186,8 @@ while True:
 
     # Draw circle
     for circ in all_circles:
-        circle_position = int(circ.position.x), SCREEN_HEIGHT - int(circ.position.y)
-        pygame.draw.circle(screen, colors.blue, circle_position, radius)
+        circle_position = int(circ.body.position.x), SCREEN_HEIGHT - int(circ.body.position.y)
+        pygame.draw.circle(screen, colors.blue, circle_position, circ.radius)
 
     pygame.display.update()
     # pygame.display.flip()
