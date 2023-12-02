@@ -1,3 +1,4 @@
+import collections
 BASE_RADIUS = 5
 
 lv_1_cherry = BASE_RADIUS
@@ -12,7 +13,7 @@ lv_9_pineapple = BASE_RADIUS*6
 lv_10_melon = BASE_RADIUS*7
 lv_11_watermelon = BASE_RADIUS*8
 
-next_sizes = dict()
+next_sizes = collections.defaultdict(lambda: None)
 next_sizes[lv_1_cherry] = lv_2_strawberry
 next_sizes[lv_2_strawberry] = lv_3_grapes
 next_sizes[lv_3_grapes] = lv_4_dekopon
