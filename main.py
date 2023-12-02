@@ -209,7 +209,9 @@ while True:
     # Draw circle
     for circ in all_circles:
         circle_position = int(circ.body.position.x), SCREEN_HEIGHT - int(circ.body.position.y)
-        pygame.draw.circle(screen, colors.blue, circle_position, circ.radius)
+        #pygame.draw.circle(screen, colors.blue, circle_position, circ.radius)
+        pygame.draw.circle(screen, fruits.fruit_colors[circ.radius], circle_position, circ.radius)
+
 
     pygame.display.update()
     # pygame.display.flip()

@@ -1,4 +1,6 @@
 import collections
+import random
+import colors
 BASE_RADIUS = float(20)
 
 lv_1_cherry = BASE_RADIUS
@@ -13,7 +15,47 @@ lv_9_pineapple = BASE_RADIUS*6
 lv_10_melon = BASE_RADIUS*7
 lv_11_watermelon = BASE_RADIUS*8
 
+fruit_vals = [lv_1_cherry,
+              lv_2_strawberry,
+              lv_3_grapes,
+              lv_4_dekopon,
+              lv_5_persimmon,
+              lv_6_apple,
+              lv_7_pear,
+              lv_8_peach,
+              lv_9_pineapple,
+              lv_10_melon,
+              lv_11_watermelon
+              ]
+
+scores = dict()
+scores[lv_1_cherry] = 1
+scores[lv_2_strawberry] = 3
+scores[lv_3_grapes] = 6
+scores[lv_4_dekopon] = 10
+scores[lv_5_persimmon] = 15
+scores[lv_6_apple] = 21
+scores[lv_7_pear] = 28
+scores[lv_8_peach] = 36
+scores[lv_9_pineapple] = 45
+scores[lv_10_melon] = 55
+scores[lv_11_watermelon] = 66
+
+available_colors = set()
+while len(available_colors) < 11:
+    available_colors.add(colors.generate_color())
+
+fruit_colors = dict()
+idx = 0
+for c in available_colors:
+    fruit_val = fruit_vals[idx]
+    fruit_colors[fruit_val] = c
+    idx += 1
+
+
+
 next_sizes = collections.defaultdict(lambda: None)
+# TODO: refactor to use the array. arr[idx] = arr[idx + 1] for all except last
 next_sizes[lv_1_cherry] = lv_2_strawberry
 next_sizes[lv_2_strawberry] = lv_3_grapes
 next_sizes[lv_3_grapes] = lv_4_dekopon
