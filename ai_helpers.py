@@ -1,4 +1,7 @@
 
+
+#TODO: what about a measurement of the amount of remaining space available? 
+
 def get_positions(circles, curr_radius):
     '''
     get positions of the 6 highest and lowest fruits that are either greater, equal, or smaller
@@ -37,7 +40,12 @@ def get_positions(circles, curr_radius):
             if y < lowest_largest_y:
                 lowest_largest_y = y
                 out[5] = (circ.body.x, circ.body.y, 0)
-    return out
+    flattened_out = []
+    for v1, v2, v3 in out:
+        flattened_out.append(v1)
+        flattened_out.append(v2)
+        flattened_out.append(v3)
+    return flattened_out
 # stats:
 # 1. number of fruits on screen
 # 2. number of different fruit sizes on screen
@@ -56,5 +64,20 @@ def compute_fitness(score):
     #TODO: experiment with other forms of fitness as outlined below
 # 2. chaining of successive sizes
 # 3. large fruits (maybe levels 6+?) in corners/sides rather than center
+
+
+def generate_inputs(circles, curr_radius):
+    num_fruits = get_num_fruits(circles)
+    num_distinct_sizes = get_num_distinct_sizes(circles)
+    positions =  get_positions(circles, curr_radius)
+    flattened_inputs = []
+    flattened_inputs.append(curr_radius)
+    flattened_inputs.append(num_fruits)
+    flattened_inputs.append(num_distinct_sizes)
+    flattened_inputs += positions
+    return flattened_inputs
+
+
+
 
 
