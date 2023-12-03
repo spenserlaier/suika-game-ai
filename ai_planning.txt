@@ -1,0 +1,8 @@
+- fitness based on total score, and "chaining" of fruits,
+    where a fruit chain is defined as having fruits of successive sizes touching each other
+
+- inputs:
+    - current fruit size
+    - number of fruits on screen
+    - x and y positions of current fruits on screen, and whether each fruit
+    is larger, smaller, or the same size as the current fruit (or perhaps just the radius itself?)

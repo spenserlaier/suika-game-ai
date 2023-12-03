@@ -5,6 +5,7 @@ from pymunk.vec2d import Vec2d
 import colors
 import fruits
 import random
+import collections
 
 # Initialize Pygame
 pygame.init()
@@ -147,31 +148,25 @@ sorted_sizes = sorted(fruits.next_sizes.keys())
 # Run the simulation loop
 #next_radius = random.choice(sorted_sizes[0:3])
 next_radius = sorted_sizes[0]
+fruits_too_high = collections.defaultdict(lambda: 0)
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             exit()
         if event.type == MOUSEBUTTONDOWN:
-            #mouse_x, mouse_y = event.pos
-            #print(event.pos)
             radius = next_radius
             mass = BASE_MASS*radius
-            #radius = 25  # Specify the radius of the circle
             moment = pymunk.moment_for_circle(mass, 0, radius)
             circle_body = pymunk.Body(mass, moment)
             circle_shape = pymunk.Circle(circle_body, radius)
             circle_shape.collision_type = CIRCLE_COLLISION_TYPE
-            #circle_body.position = mouse_x, SCREEN_HEIGHT - mouse_y
             circle_body.position = cloud_x, SCREEN_HEIGHT- cloud_y
             space.add(circle_body, circle_shape)
-            #all_circles.append(circle_body)
             all_circles.add(circle_shape)
-            #next_radius = random.choice(sorted_sizes[0:3])
-            next_radius = sorted_sizes[0]
+            next_radius = random.choice(sorted_sizes[0:3])
 
     # Step the Pymunk space
-    #space.step(1 / 60.0)
     space.step(1 / 60.0)
 
     # Update Pygame display
@@ -209,7 +204,18 @@ while True:
     # Draw circle
     for circ in all_circles:
         circle_position = int(circ.body.position.x), SCREEN_HEIGHT - int(circ.body.position.y)
-        #pygame.draw.circle(screen, colors.blue, circle_position, circ.radius)
+        circle_topmost_y = SCREEN_HEIGHT - int(circ.body.position.y + circ.radius)
+        #print(circle_topmost_y)
+        if circle_topmost_y <= CLOUD_Y_VALUE:
+            fruits_too_high[circ] += 1
+            if fruits_too_high[circ] == 60:
+                print("fruit has been above threshold for one second")
+            if fruits_too_high[circ] == 120:
+                print("fruit has been above threshold for two seconds")
+            if fruits_too_high[circ] == 180:
+                print("fruit has been above threshold for three seconds")
+        else:
+            fruits_too_high[circ] = 0
         pygame.draw.circle(screen, fruits.fruit_colors[circ.radius], circle_position, circ.radius)
 
 

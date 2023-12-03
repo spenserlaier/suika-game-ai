@@ -5,13 +5,13 @@ BASE_RADIUS = float(20)
 
 lv_1_cherry = BASE_RADIUS
 lv_2_strawberry = BASE_RADIUS*2
-lv_3_grapes = BASE_RADIUS*2.5 
-lv_4_dekopon = BASE_RADIUS*3
-lv_5_persimmon = BASE_RADIUS*3.5
-lv_6_apple = BASE_RADIUS*4
-lv_7_pear = BASE_RADIUS*5
-lv_8_peach= BASE_RADIUS*5.5 
-lv_9_pineapple = BASE_RADIUS*6
+lv_3_grapes = BASE_RADIUS*3
+lv_4_dekopon = BASE_RADIUS*3.5
+lv_5_persimmon = BASE_RADIUS*4
+lv_6_apple = BASE_RADIUS*4.5
+lv_7_pear = BASE_RADIUS*5.5
+lv_8_peach= BASE_RADIUS*6
+lv_9_pineapple = BASE_RADIUS*6.5
 lv_10_melon = BASE_RADIUS*7
 lv_11_watermelon = BASE_RADIUS*8
 
