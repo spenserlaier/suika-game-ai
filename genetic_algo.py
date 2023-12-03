@@ -1,15 +1,18 @@
 
 #structure: neural network with input layer, one hidden layer, and output layer where output is the
 #horizontal coordinate to drop the ball
+import game_loop
 import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
 
-def create_neural_network(input_size, output_size):
+def create_neural_network(input_size, output_size=1):
     model = Sequential()
     model.add(Dense(units=64, activation='relu', input_dim=input_size))
-    model.add(Dense(units=output_size, activation='softmax'))
+    model.add(Dense(units=64, activation='relu', input_dim=input_size))
+    #model.add(Dense(units=output_size, activation='sigmoid'))
+    model.add(Dense(units=output_size, activation='tanh'))
     model.compile(optimizer=Adam(), loss='mean_squared_error')  
     return model
 
@@ -38,7 +41,8 @@ def calculate_fitness(network):
     # TODO: run the game loop with the given network, and continue feeding it inputs 
     # until the game over condition is reached. when that happens, return the score as the
     # general measurement of fitness
-    return 0
+    fitness = game_loop.main(network)
+    return fitness
 
 # Genetic Algorithm
 def genetic_algorithm(population_size, input_size, output_size, generations):
@@ -64,7 +68,7 @@ def genetic_algorithm(population_size, input_size, output_size, generations):
 
     return best_network
 
-input_size = 10  
+input_size = 21 - 6  
 output_size = 1  
 #TODO: adjust output so that it's a value within the expected x boundaries
 population_size = 10

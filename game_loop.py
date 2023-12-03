@@ -6,9 +6,12 @@ import colors
 import fruits
 import random
 import collections
+import ai_helpers
+import numpy
 
 # Initialize Pygame
-def main():
+def main(neural_network=None):
+    ticks = 0
     pygame.init()
 
 # Set up Pygame display
@@ -16,7 +19,7 @@ def main():
     FLOOR_HEIGHT = 100
     WALL_X_OFFSET = 150
 #WALL_LENGTH = SCREEN_HEIGHT - 200
-    WALL_LENGTH = 600
+    WALL_LENGTH = 800 
     WALL_Y_OFFSET = 100
     BORDER_COLLISION_TYPE = 5
     CIRCLE_COLLISION_TYPE = 2
@@ -26,6 +29,7 @@ def main():
     CLOUD_RIGHT_X_BOUNDARY = SCREEN_WIDTH - WALL_X_OFFSET - CLOUD_RADIUS//4
 #CLOUD_Y_VALUE = SCREEN_HEIGHT//2
     CLOUD_Y_VALUE = WALL_Y_OFFSET // 3
+    TICK_RATE = 30
     FONT =  pygame.font.Font(None, 36) 
 # TODO: take into account cloud radius when establishing x position boundaries
 # it seems like floor height is computed by counting pixels from bottom up for pymunk,
@@ -141,6 +145,7 @@ def main():
     next_radius = sorted_sizes[0]
     fruits_too_high = collections.defaultdict(lambda: 0)
     while True:
+        ticks += 1
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -158,7 +163,38 @@ def main():
                 next_radius = random.choice(sorted_sizes[0:3])
                 #score += fruits.scores[radius]
                 state[score] += fruits.scores[radius]
-
+        if neural_network != None:
+            #print("network detected")
+            if ticks % TICK_RATE == 0:
+                # use the neural network to compute a new horizontal position, and drop the fruit
+                radius = next_radius
+                next_radius = random.choice(sorted_sizes[0:3])
+                input_vector = numpy.array([ai_helpers.generate_inputs(all_circles, radius)])
+                prediction = neural_network.predict(input_vector)[0][0] # we're using sigmoid activation,
+                # so the result will be a value between 0 and 1 which then needs to be mapped to an 
+                # x position within the valid boundaries of the game
+                left_boundary = CLOUD_LEFT_X_BOUNDARY + int(radius)
+                right_boundary = CLOUD_RIGHT_X_BOUNDARY - int(radius)
+                #total_dist = (right_boundary - left_boundary)
+                total_dist = (right_boundary - left_boundary)//2 #for hyperbolic tangent
+                center_boundary = (left_boundary + right_boundary)//2
+                #mapped_dist = left_boundary + total_dist*prediction
+                mapped_dist = center_boundary + total_dist*prediction
+                print(f"input vector: {input_vector}")
+                print(f"prediction value: {prediction}")
+                print(f"left boundary: {left_boundary} right boundary: {right_boundary}")
+                print(f"the computed mapped distance is: {mapped_dist}")
+                mass = BASE_MASS*radius
+                moment = pymunk.moment_for_circle(mass, 0, radius)
+                circle_body = pymunk.Body(mass, moment)
+                circle_shape = pymunk.Circle(circle_body, radius)
+                circle_shape.collision_type = CIRCLE_COLLISION_TYPE
+                circle_body.position = mapped_dist, SCREEN_HEIGHT- cloud_y
+                space.add(circle_body, circle_shape)
+                all_circles.add(circle_shape)
+                next_radius = random.choice(sorted_sizes[0:3])
+                #score += fruits.scores[radius]
+                state[score] += fruits.scores[radius]
         # Step the Pymunk space
         space.step(1 / 60.0)
 
@@ -206,12 +242,12 @@ def main():
             #print(circle_topmost_y)
             if circle_topmost_y <= CLOUD_Y_VALUE:
                 fruits_too_high[circ] += 1
-                if fruits_too_high[circ] == 60:
-                    print("fruit has been above threshold for one second")
-                if fruits_too_high[circ] == 120:
-                    print("fruit has been above threshold for two seconds")
-                if fruits_too_high[circ] == 180:
-                    print("fruit has been above threshold for three seconds")
+                #if fruits_too_high[circ] == 60:
+                    #print("fruit has been above threshold for one second")
+                #if fruits_too_high[circ] == 120:
+                    #print("fruit has been above threshold for two seconds")
+                #if fruits_too_high[circ] == 180:
+                    #print("fruit has been above threshold for three seconds")
             else:
                 fruits_too_high[circ] = 0
             pygame.draw.circle(screen, fruits.fruit_colors[circ.radius], circle_position, circ.radius)
@@ -220,8 +256,8 @@ def main():
         if warning_time != 0:
             if warning_time == 4:
                 warning_text = "game over"
-                print("game over")
-                break
+                #print("game over")
+                return state[score]
             else:
                 warning_text = f"{warning_time}"
             text_surface = FONT.render(warning_text, True, colors.white) 
@@ -234,6 +270,4 @@ def main():
             if shape in space.shapes:
                 space.remove(shape, shape.body)
         clock.tick(60)
-main()
-
 
