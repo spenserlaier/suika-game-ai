@@ -68,7 +68,7 @@ def genetic_algorithm(population_size, input_size, output_size, generations):
 
     return best_network
 
-input_size = 21 - 6  
+input_size = 21 - 6 - 2
 output_size = 1  
 #TODO: adjust output so that it's a value within the expected x boundaries
 population_size = 10

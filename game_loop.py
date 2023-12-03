@@ -169,7 +169,11 @@ def main(neural_network=None):
                 # use the neural network to compute a new horizontal position, and drop the fruit
                 radius = next_radius
                 next_radius = random.choice(sorted_sizes[0:3])
-                input_vector = numpy.array([ai_helpers.generate_inputs(all_circles, radius)])
+                left_wall_x = WALL_X_OFFSET
+                right_wall_x = SCREEN_WIDTH - WALL_X_OFFSET
+                floor_y = FLOOR_HEIGHT
+                top_height = CLOUD_Y_VALUE
+                input_vector = numpy.array([ai_helpers.generate_inputs(all_circles, radius, left_wall_x, right_wall_x, floor_y, top_height )])
                 prediction = neural_network.predict(input_vector)[0][0] # we're using sigmoid activation,
                 # so the result will be a value between 0 and 1 which then needs to be mapped to an 
                 # x position within the valid boundaries of the game
