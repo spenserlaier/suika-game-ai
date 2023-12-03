@@ -25,6 +25,7 @@ CLOUD_LEFT_X_BOUNDARY = WALL_X_OFFSET + CLOUD_RADIUS//4
 CLOUD_RIGHT_X_BOUNDARY = SCREEN_WIDTH - WALL_X_OFFSET - CLOUD_RADIUS//4
 #CLOUD_Y_VALUE = SCREEN_HEIGHT//2
 CLOUD_Y_VALUE = WALL_Y_OFFSET // 3
+FONT =  pygame.font.Font(None, 36) 
 # TODO: take into account cloud radius when establishing x position boundaries
 # it seems like floor height is computed by counting pixels from bottom up for pymunk,
 # and pixels from the top down for pygame. a conversion is needed
@@ -38,6 +39,7 @@ space.gravity = 0, -1000  # Set gravity in the y-direction
 
 
 max_velocity = 100  # Adjust the value based on your needs
+score = 0
 
 def post_step(arbiter, space, _):
     for shape in arbiter.shapes:
@@ -79,14 +81,14 @@ space.add(right_wall)
 
 
 # Create a dynamic circle
-mass = BASE_MASS
+#mass = BASE_MASS
 #radius = 25  # Specify the radius of the circle
-radius = fruits.BASE_RADIUS
-moment = pymunk.moment_for_circle(mass, 0, radius)
-circle_body = pymunk.Body(mass, moment)
-circle_shape = pymunk.Circle(circle_body, radius)
-circle_body.position = 200, 400
-space.add(circle_body, circle_shape)
+#radius = fruits.BASE_RADIUS
+#moment = pymunk.moment_for_circle(mass, 0, radius)
+#circle_body = pymunk.Body(mass, moment)
+#circle_shape = pymunk.Circle(circle_body, radius)
+#circle_body.position = 200, 400
+#space.add(circle_body, circle_shape)
 
 
 
@@ -96,8 +98,10 @@ shapes_to_remove = []
 #recent_collisions = set()
 recent_collisions = set() 
 
+state = {score: 0}
+
 # Define a collision callback function
-def handle_collision(arbiter, space, data, circles):
+def handle_collision(arbiter, space, data, circles, state):
     # Get information about the colliding shapes
     shape_a, shape_b = arbiter.shapes
     radius_a = shape_a.radius
@@ -115,6 +119,8 @@ def handle_collision(arbiter, space, data, circles):
             circle_body.position = next_pos 
             space.add(circle_body, circle_shape)
             circles.add(circle_shape)
+            #score += fruits.scores[nxt_radius]
+            state[score] += fruits.scores[nxt_radius]
         if shape_a in space.shapes:
             space.remove(shape_a)
         if shape_a in circles:
@@ -129,11 +135,12 @@ def handle_collision(arbiter, space, data, circles):
 
 # Set the collision callback function
 #collision_handler.begin = handle_collision
-collision_handler.begin = lambda arbiter, space, data: handle_collision(arbiter, space, data,  all_circles)
+all_circles = set() 
+collision_handler.begin = lambda arbiter, space, data: handle_collision(arbiter, space, data,  all_circles, state)
 
 # Set up Pygame clock
 clock = pygame.time.Clock()
-all_circles = {circle_shape}
+#all_circles = {circle_shape}
 
 
 mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -165,6 +172,8 @@ while True:
             space.add(circle_body, circle_shape)
             all_circles.add(circle_shape)
             next_radius = random.choice(sorted_sizes[0:3])
+            #score += fruits.scores[radius]
+            state[score] += fruits.scores[radius]
 
     # Step the Pymunk space
     space.step(1 / 60.0)
@@ -172,6 +181,10 @@ while True:
     # Update Pygame display
     screen.fill(colors.black)
 
+    score_text = f"{state[score]}"
+    text_surface = FONT.render(score_text, True, (255, 255, 255))  # Render the text with a white color
+    text_rect = text_surface.get_rect(topleft=(50, 50))
+    screen.blit(text_surface, text_rect)
     # draw the cloud
     mouse_x, mouse_y = pygame.mouse.get_pos()
     cloud_x, cloud_y = mouse_x, CLOUD_Y_VALUE
@@ -202,6 +215,7 @@ while True:
     pygame.draw.line(screen, colors.green, (x1, y1), (x2, y2), FLOOR_WIDTH)
 
     # Draw circle
+    warning_time = 0
     for circ in all_circles:
         circle_position = int(circ.body.position.x), SCREEN_HEIGHT - int(circ.body.position.y)
         circle_topmost_y = SCREEN_HEIGHT - int(circ.body.position.y + circ.radius)
@@ -217,6 +231,14 @@ while True:
         else:
             fruits_too_high[circ] = 0
         pygame.draw.circle(screen, fruits.fruit_colors[circ.radius], circle_position, circ.radius)
+    for danger_ticks in fruits_too_high.values():
+        warning_time = max(warning_time, int(danger_ticks/60))
+    if warning_time != 0:
+        warning_text = f"{warning_time}"
+        text_surface = FONT.render(warning_text, True, colors.white) 
+        text_rect = text_surface.get_rect(topleft=(SCREEN_WIDTH-50, 50))
+        screen.blit(text_surface, text_rect)
+
 
 
     pygame.display.update()

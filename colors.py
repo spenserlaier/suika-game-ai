@@ -4,6 +4,7 @@ blue = (0, 255, 0)
 red = (255, 0, 0)
 green = (0, 0, 255)
 purple = (255, 0, 255)
+white = (255, 255, 255)
 
 
 def generate_color():
