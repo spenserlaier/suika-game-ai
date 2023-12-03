@@ -80,19 +80,6 @@ def main():
     right_wall.collision_type = BORDER_COLLISION_TYPE
     space.add(right_wall)
 
-
-# Create a dynamic circle
-#mass = BASE_MASS
-#radius = 25  # Specify the radius of the circle
-#radius = fruits.BASE_RADIUS
-#moment = pymunk.moment_for_circle(mass, 0, radius)
-#circle_body = pymunk.Body(mass, moment)
-#circle_shape = pymunk.Circle(circle_body, radius)
-#circle_body.position = 200, 400
-#space.add(circle_body, circle_shape)
-
-
-
     collision_handler = space.add_collision_handler(CIRCLE_COLLISION_TYPE, CIRCLE_COLLISION_TYPE)  # 0 is the collision type for circles
 
     shapes_to_remove = []
