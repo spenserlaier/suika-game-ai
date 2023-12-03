@@ -234,10 +234,14 @@ while True:
     for danger_ticks in fruits_too_high.values():
         warning_time = max(warning_time, int(danger_ticks/60))
     if warning_time != 0:
-        warning_text = f"{warning_time}"
+        if warning_time == 4:
+            warning_text = "game over"
+        else:
+            warning_text = f"{warning_time}"
         text_surface = FONT.render(warning_text, True, colors.white) 
         text_rect = text_surface.get_rect(topleft=(SCREEN_WIDTH-50, 50))
         screen.blit(text_surface, text_rect)
+        break
 
 
 
