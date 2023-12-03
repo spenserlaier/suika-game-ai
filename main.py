@@ -129,8 +129,6 @@ def handle_collision(arbiter, space, data, circles, state):
             space.remove(shape_b)
         if shape_b in circles:
             circles.remove(shape_b)
-
-
     return True
 
 # Set the collision callback function
@@ -236,12 +234,13 @@ while True:
     if warning_time != 0:
         if warning_time == 4:
             warning_text = "game over"
+            print("game over")
+            break
         else:
             warning_text = f"{warning_time}"
         text_surface = FONT.render(warning_text, True, colors.white) 
         text_rect = text_surface.get_rect(topleft=(SCREEN_WIDTH-50, 50))
         screen.blit(text_surface, text_rect)
-        break
 
 
 
