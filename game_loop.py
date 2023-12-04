@@ -29,7 +29,7 @@ def main(neural_network=None):
     CLOUD_RIGHT_X_BOUNDARY = SCREEN_WIDTH - WALL_X_OFFSET - CLOUD_RADIUS//4
 #CLOUD_Y_VALUE = SCREEN_HEIGHT//2
     CLOUD_Y_VALUE = WALL_Y_OFFSET // 3
-    TICK_RATE = 30
+    TICK_RATE = 80
     FONT =  pygame.font.Font(None, 36) 
 # TODO: take into account cloud radius when establishing x position boundaries
 # it seems like floor height is computed by counting pixels from bottom up for pymunk,
@@ -184,10 +184,10 @@ def main(neural_network=None):
                 center_boundary = (left_boundary + right_boundary)//2
                 #mapped_dist = left_boundary + total_dist*prediction
                 mapped_dist = center_boundary + total_dist*prediction
-                print(f"input vector: {input_vector}")
-                print(f"prediction value: {prediction}")
-                print(f"left boundary: {left_boundary} right boundary: {right_boundary}")
-                print(f"the computed mapped distance is: {mapped_dist}")
+                #print(f"input vector: {input_vector}")
+                #print(f"prediction value: {prediction}")
+                #print(f"left boundary: {left_boundary} right boundary: {right_boundary}")
+                #print(f"the computed mapped distance is: {mapped_dist}")
                 mass = BASE_MASS*radius
                 moment = pymunk.moment_for_circle(mass, 0, radius)
                 circle_body = pymunk.Body(mass, moment)

@@ -2,18 +2,19 @@ import collections
 import random
 import colors
 BASE_RADIUS = float(20)
+SIZE_MULTIPLIER = 1.5
 
-lv_1_cherry = BASE_RADIUS
-lv_2_strawberry = BASE_RADIUS*2
-lv_3_grapes = BASE_RADIUS*3
-lv_4_dekopon = BASE_RADIUS*3.5
-lv_5_persimmon = BASE_RADIUS*4
-lv_6_apple = BASE_RADIUS*4.5
-lv_7_pear = BASE_RADIUS*5.5
-lv_8_peach= BASE_RADIUS*6
-lv_9_pineapple = BASE_RADIUS*6.5
-lv_10_melon = BASE_RADIUS*7
-lv_11_watermelon = BASE_RADIUS*8
+lv_1_cherry = BASE_RADIUS       *SIZE_MULTIPLIER
+lv_2_strawberry = BASE_RADIUS*2 *SIZE_MULTIPLIER
+lv_3_grapes = BASE_RADIUS*3     *SIZE_MULTIPLIER
+lv_4_dekopon = BASE_RADIUS*3.5  *SIZE_MULTIPLIER
+lv_5_persimmon = BASE_RADIUS*4  *SIZE_MULTIPLIER
+lv_6_apple = BASE_RADIUS*4.5    *SIZE_MULTIPLIER
+lv_7_pear = BASE_RADIUS*5.5     *SIZE_MULTIPLIER
+lv_8_peach= BASE_RADIUS*6       *SIZE_MULTIPLIER
+lv_9_pineapple = BASE_RADIUS*6.5*SIZE_MULTIPLIER
+lv_10_melon = BASE_RADIUS*7     *SIZE_MULTIPLIER
+lv_11_watermelon = BASE_RADIUS*8*SIZE_MULTIPLIER
 
 fruit_vals = [lv_1_cherry,
               lv_2_strawberry,
